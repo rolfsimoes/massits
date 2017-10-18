@@ -1,0 +1,26 @@
+Package: massits
+Type: Package
+Title: Massive Satellite Image Time Series
+Version: 0.1.2
+Author: Rolf Simoes
+Maintainer: Rolf Simoes <rolf.simoes@inpe.br>
+Description: This is a Massise, fast, and light-weight satellite image time series 
+    processing package. This package is based on the sits package of e-sensing package (https://github.com/e-sensing/sits).
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+Depends:
+    magrittr
+Imports: 
+    tibble,
+    dplyr,
+    multidplyr,
+    purrr,
+    tidyr,
+    lubridate,
+    stats,
+    e1071,
+    caret
+Remotes:
+    hadley/multidplyr
+RoxygenNote: 6.0.1
