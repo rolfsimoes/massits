@@ -5,21 +5,21 @@
 #' @param m             A valid massits tibble
 #' @param bands         A valid string vector of band names
 #' @param time_break    A numeric vector indicating the segments of time series to be breaked.
-#'                      This vector can be computed in \code{\link{its.t_break}} function (Default all \code{1}).
+#'                      This vector can be computed in \code{\link{its.t_break}} function (Default \code{its.t_break("2000-09-01", "12 months")}).
 #' @param measure_id    A numeric vector indicating the measure sequences to compose the feature tibble
-#' @param drop_na       Logical indicating wether to drop rows with any \code{NA} measured values (Default \code{FALSE}).
+#' @param drop_na       Logical indicating wether to drop rows with any \code{NA} measured values (Default \code{TRUE}).
 #' @param cores         A \code{multidplyr} argument to enable multithread processing.
 #' @return Massits feature tibble
 #' @export
-its.feat <- function(m = NULL, bands, time_break = rep.int(1, NROW(m)), measure_id = NULL, drop_na = FALSE, cores = 1){
+its.feat <- function(m, bands, time_break = its.t_break("2000-09-01", "12 months"),
+                     measure_id = NULL, drop_na = TRUE, cores = 1){
 
     its.valid(m, "its.feat - invalid data input.")
 
-    m$time_break <- time_break
+    m$time_break <- time_break(m)
 
     result <-
         dplyr::group_by(m, sample_id, time_break) %>%
-        # dplyr::mutate(from = min(t), to = max(t)) %>%
         dplyr::mutate(t = 1:n()) %>%
         dplyr::ungroup()
 
