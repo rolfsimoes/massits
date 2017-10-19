@@ -4,8 +4,8 @@
 \alias{its.feat}
 \title{massits features functions}
 \usage{
-its.feat(m = NULL, bands, time_break = rep.int(1, NROW(m)),
-  measure_id = NULL, drop_na = FALSE, cores = 1)
+its.feat(m, bands, time_break = its.t_break(t_start = "2000-09-01", t_interval
+  = "12 months"), measure_id = NULL, drop_na = TRUE, cores = 1)
 }
 \arguments{
 \item{m}{A valid massits tibble}
@@ -13,11 +13,12 @@ its.feat(m = NULL, bands, time_break = rep.int(1, NROW(m)),
 \item{bands}{A valid string vector of band names}
 
 \item{time_break}{A numeric vector indicating the segments of time series to be breaked.
-This vector can be computed in \code{\link{its.t_break}} function (Default all \code{1}).}
+This vector can be computed in \code{\link{its.t_break}} function
+(Default \code{its.t_break(t_start = "2000-09-01", t_interval = "12 months")}).}
 
 \item{measure_id}{A numeric vector indicating the measure sequences to compose the feature tibble}
 
-\item{drop_na}{Logical indicating wether to drop rows with any \code{NA} measured values (Default \code{FALSE}).}
+\item{drop_na}{Logical indicating wether to drop rows with any \code{NA} measured values (Default \code{TRUE}).}
 
 \item{cores}{A \code{multidplyr} argument to enable multithread processing.}
 }

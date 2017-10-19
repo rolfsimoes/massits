@@ -6,14 +6,14 @@
 #'               \code{t_interval} parameters. A column \code{time_break} is
 #'               created/updated with the identifier of corresponding time_series's segment.
 #'               The massits tibble is then returned.
-#' @param m             A valid massits tibble
 #' @param t_start       A valid time series index. Can be \code{numeric} or \code{lubridate::date}
 #' @param t_interval    A valid interval to compose a theoretical time series breaking periods
 #'                      Can be numeric if \code{from} is numeric or a \code{lubridate::period}
 #'                      if \code{from} is \code{datetime}.
+#' @param m             A valid massits tibble
 #' @return Numeric vector
 #' @export
-its.t_break <- function(m = NULL, t_start, t_interval){
+its.t_break <- function(t_start, t_interval, m = NULL){
     result <-
         .its.factory(m, function(m){
             its.valid(m, "its.t_break - invalid data input.")
