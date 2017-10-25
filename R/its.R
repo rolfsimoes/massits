@@ -1,5 +1,11 @@
-#' @import magrittr
-#'
+#' @title Magrittr Pipe
+#' @importFrom magrittr %>%
+#' @name %>%
+#' @rdname pipe
+#' @description Magrittr compound assignment pipe-operator.
+#' @export
+#' @param lhs,rhs A visualisation and a function to apply to it
+NULL
 
 #' @title massits utils globals
 #' @name its.cols
@@ -21,8 +27,6 @@ its.feat.cols <-
       "x",
       "y",
       "t",
-      # "from",
-      # "to",
       "reference")
 
 #' @title massits utils globals
@@ -34,8 +38,6 @@ its.pred.cols <-
       "x",
       "y",
       "t",
-      # "from",
-      # "to",
       "reference",
       "predicted")
 

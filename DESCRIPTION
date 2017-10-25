@@ -9,9 +9,8 @@ Description: This is a Massise, fast, and light-weight satellite image time seri
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
-Depends:
-    magrittr
 Imports: 
+    magrittr,
     tibble,
     dplyr,
     multidplyr,
