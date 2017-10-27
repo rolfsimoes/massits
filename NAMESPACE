@@ -2,6 +2,7 @@
 
 export("%>%")
 export(its)
+export(its.bands)
 export(its.feat)
 export(its.feat.apply)
 export(its.feat.create_folds)

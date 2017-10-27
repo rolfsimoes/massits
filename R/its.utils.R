@@ -110,6 +110,20 @@ its.feat.length <- function(f){
 }
 
 #' @title massits utils functions
+#' @name its.bands
+#' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
+#' @description  Return the bands of massits \code{m} data.
+#' @param m           A valid massits tibble
+#' @return A string vector with all bands
+#' @export
+its.bands <- function(m){
+    its.valid(m, "its.bands - invalid data input")
+    result <- colnames(m)
+    result <- result[!(result %in% its.feat.cols)]
+    return(result)
+}
+
+#' @title massits utils functions
 #' @name its.summary
 #' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
 #' @description  Return an evaluation of a given function or an enclosure.

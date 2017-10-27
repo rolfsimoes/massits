@@ -3,7 +3,8 @@
 #' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
 #' @description  Transforms a massits tibble as an massits feature tibble
 #' @param m             A valid massits tibble
-#' @param bands         A valid string vector of band names
+#' @param bands         A valid string vector of band names. These names must coincide with
+#'                      \code{m} columns. If \code{bands=NULL}, all bands are used (Default \code{NULL}).
 #' @param time_break    A numeric vector indicating the segments of time series to be breaked.
 #'                      This vector can be computed in \code{\link{its.t_break}} function
 #'                      (Default \code{its.t_break("2000-09-01", "12 months")}).
@@ -12,10 +13,13 @@
 #' @param cores         A \code{multidplyr} argument to enable multithread processing.
 #' @return Massits feature tibble
 #' @export
-its.feat <- function(m, bands, time_break = its.t_break("2000-09-01", "12 months"),
+its.feat <- function(m, bands = NULL, time_break = its.t_break("2000-09-01", "12 months"),
                      measure_id = NULL, drop_na = TRUE, cores = 1){
 
     its.valid(m, "its.feat - invalid data input.")
+
+    if (is.null(bands))
+        bands <- its.bands(m)
 
     m$time_break <-
         if (class(time_break) == "function"){

@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 
 # This is an example of a R script that generates a SVM model for embrapa data
+library(massits)
 
 # open massits sample data
 mt.tb <- readRDS(system.file("extdata/data/mt.rds"))
@@ -9,13 +10,13 @@ mt.tb <- readRDS(system.file("extdata/data/mt.rds"))
 mt_f.tb <-
     mt.tb %>%
     its.feat(bands = c("ndvi", "evi", "nir", "mir"),
-             time_break = its.t_break(mt.tb, "2000-09-01", "12 months"),
+             time_break = its.t_break("2000-09-01", "12 months", mt.tb),
              drop_na = TRUE)
 
 # estimate accuracy
 mt_f.tb %>%
     its.feat.apply(function(x) x + 3) %>%
-    its.ml.cross_validation(ml_model = its.ml.model.svm_radial(formula = its.formula.log(), cost = 1000),
+    its.ml.cross_validation(ml_model = its.ml.model.svm_radial(formula = its.formula.log(), cost = 10),
                             cross = 5)
 #' Confusion Matrix and Statistics
 #'
@@ -67,7 +68,7 @@ mt_f.tb %>%
 its.predict <-
     mt_f.tb %>%
     its.feat.apply(function(x) x + 3) %>%
-    its.ml.create_predict(ml_model = its.ml.model.svm_radial(formula = its.formula.log(), cost = 1000),
+    its.ml.create_predict(ml_model = its.ml.model.svm_radial(formula = its.formula.log(), cost = 10),
                           summation = c("rentropy"))
 
 # save model to a RDS file
