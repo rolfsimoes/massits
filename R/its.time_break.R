@@ -52,12 +52,7 @@ its.t_break <- function(t_start, t_interval, m = NULL){
 its.t_break.count <- function(m, time_break){
     its.valid(m, "its.t_break.count - invalid data input.")
 
-    m$time_break <-
-        if (class(time_break) == "function"){
-            time_break(m)
-        } else {
-            time_break
-        }
+    m$time_break <- .its.produce(time_break, m)
 
     result <- table(m$sample_id, m$time_break)
 
@@ -80,12 +75,7 @@ its.t_break.count <- function(m, time_break){
 its.t_break.measures <- function(m, time_break){
     its.valid(m, "its.t_break.measures - invalid data input.")
 
-    m$time_break <-
-        if (class(time_break) == "function"){
-            time_break(m)
-        } else {
-            time_break
-        }
+    m$time_break <- .its.produce(time_break, m)
 
     m <-
         dplyr::group_by(m, sample_id, time_break) %>%
@@ -113,12 +103,7 @@ its.t_break.measures <- function(m, time_break){
 its.t_break.dates <- function(m, time_break){
     its.valid(m, "its.t_break.dates - invalid data input.")
 
-    m$time_break <-
-        if (class(time_break) == "function"){
-            time_break(m)
-        } else {
-            time_break
-        }
+    m$time_break <- .its.produce(time_break, m)
 
     m <-
         dplyr::group_by(m, sample_id, time_break) %>%

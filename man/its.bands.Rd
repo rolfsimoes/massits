@@ -4,7 +4,7 @@
 \alias{its.bands}
 \title{massits utils functions}
 \usage{
-its.bands(m)
+its.bands(m = NULL)
 }
 \arguments{
 \item{m}{A valid massits tibble}

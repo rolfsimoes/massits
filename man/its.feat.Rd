@@ -4,14 +4,14 @@
 \alias{its.feat}
 \title{massits features functions}
 \usage{
-its.feat(m, bands = NULL, time_break = its.t_break("2000-09-01",
+its.feat(m, bands = its.bands(), time_break = its.t_break("2000-09-01",
   "12 months"), measure_id = NULL, drop_na = TRUE, cores = 1)
 }
 \arguments{
 \item{m}{A valid massits tibble}
 
 \item{bands}{A valid string vector of band names. These names must coincide with
-\code{m} columns. If \code{bands=NULL}, all bands are used (Default \code{NULL}).}
+\code{m} columns (Default \code{its.bands()}).}
 
 \item{time_break}{A numeric vector indicating the segments of time series to be breaked.
 This vector can be computed in \code{\link{its.t_break}} function

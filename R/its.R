@@ -82,3 +82,111 @@ its <- function(x, col_names = NULL){
 
     return(m)
 }
+
+#' @title massits time series functions
+#' @name its.apply
+#' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
+#' @description  Applies a function to some massits tibble's fields
+#' @param m             A valid massits tibble
+#' @param fun           A valid function with one argument to be applied on each attribute
+#'                      (its first argument).
+#' @param bands         A string vector indicating those fields (bands) to which
+#'                      function \code{fun} will be applied. All non selected fields
+#'                      will remain unchanged (Default \code{its.bands()}).
+#' @param bands_params  An optional parameter to be passed as \code{fun} second argument.
+#'                      If informed, it must have \code{1} or the same number of bands.
+#'                      (Default \code{NULL})
+#' @return Massits table
+#' @export
+its.apply <- function(m, fun, bands = its.bands(), bands_params = NULL){
+    its.valid(m, "its.apply - invalid data input.")
+
+    bands <- .its.produce(bands, m)
+
+    if (!is.null(bands_params) &&
+        length(bands_params) != 1 &&
+        length(bands) != length(bands_params))
+        stop("its.apply - `bands_params` must have the same length of `bands`")
+
+    result <- m
+    if (!is.null(bands_params)){
+        if (length(bands_params) == 1)
+            bands_params <- rep(bands_params, length(bands))
+        for(i in seq_along(bands)){
+            result <-
+                dplyr::mutate_at(result,
+                                 bands[[i]],
+                                 function(x) fun(x, bands_params[[i]]))
+        }
+    } else
+        result <- dplyr::mutate_at(result, bands, fun)
+
+    result <-
+        result %>%
+        .its.stamp()
+    return(result)
+}
+
+#' @title massits time series functions
+#' @name its.apply_na
+#' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
+#' @description  Substitute some missing values by \code{NA} in massits tibble's fields.
+#' @param m             A valid massits tibble
+#' @param bands         A string vector indicating those fields (bands)
+#'                      to be interpolated. All non selected fields
+#'                      will remain unchanged (Default \code{its.bands()}).
+#' @param na_values     The missing value to be substituted by \code{NA}
+#'                      (Default \code{-3000})
+#' @return Massits table
+#' @export
+its.apply_na <- function(m, bands = its.bands(), na_values = -3000){
+
+    result <- its.apply(m,
+                        function(x, p){
+                            x[x==p] <- NA
+                            return(x)
+                        },
+                        bands = bands, bands_params = na_values)
+
+    return(result)
+}
+
+#' @title massits time series functions
+#' @name its.scale
+#' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
+#' @description  Scaling factor to transform values of massits tibble's fields.
+#' @param m             A valid massits tibble
+#' @param bands         A string vector indicating those fields (bands)
+#'                      to be re-scaled. All non selected fields
+#'                      will remain unchanged (Default \code{its.bands()}).
+#' @param factors       Scaling factor to multiply all selected field values
+#'                      (Default \code{0.0001}).
+#' @return Massits table
+#' @export
+its.scale <- function(m, bands = its.bands(), factors = c(0.0001)){
+
+    result <- its.apply(m, fun = function(x, p) return(x * p),
+                        bands = bands, bands_params = factors)
+
+    return(result)
+}
+
+#' @title massits time series functions
+#' @name its.translate
+#' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
+#' @description  Translation to be added in values of massits tibble's fields.
+#' @param m             A valid massits tibble
+#' @param bands         A string vector indicating those fields (bands)
+#'                      to be displaced. All non selected fields
+#'                      will remain unchanged (Default \code{its.bands()}).
+#' @param amounts       Amount value to be added in all selected field values.
+#'                      (Default \code{3}).
+#' @return Massits table
+#' @export
+its.translate <- function(m, bands = its.bands(), amounts = c(3)){
+
+    result <- its.apply(m, fun = function(x, p) return(x + p),
+                        bands = bands, bands_params = amounts)
+
+    return(result)
+}

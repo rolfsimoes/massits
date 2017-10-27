@@ -19,7 +19,8 @@ Imports:
     lubridate,
     stats,
     e1071,
-    caret
+    caret,
+    zoo
 Remotes:
     hadley/multidplyr
 RoxygenNote: 6.0.1

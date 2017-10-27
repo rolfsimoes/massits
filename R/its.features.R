@@ -4,7 +4,7 @@
 #' @description  Transforms a massits tibble as an massits feature tibble
 #' @param m             A valid massits tibble
 #' @param bands         A valid string vector of band names. These names must coincide with
-#'                      \code{m} columns. If \code{bands=NULL}, all bands are used (Default \code{NULL}).
+#'                      \code{m} columns (Default \code{its.bands()}).
 #' @param time_break    A numeric vector indicating the segments of time series to be breaked.
 #'                      This vector can be computed in \code{\link{its.t_break}} function
 #'                      (Default \code{its.t_break("2000-09-01", "12 months")}).
@@ -13,20 +13,15 @@
 #' @param cores         A \code{multidplyr} argument to enable multithread processing.
 #' @return Massits feature tibble
 #' @export
-its.feat <- function(m, bands = NULL, time_break = its.t_break("2000-09-01", "12 months"),
+its.feat <- function(m, bands = its.bands(),
+                     time_break = its.t_break("2000-09-01", "12 months"),
                      measure_id = NULL, drop_na = TRUE, cores = 1){
 
     its.valid(m, "its.feat - invalid data input.")
 
-    if (is.null(bands))
-        bands <- its.bands(m)
+    bands <- .its.produce(bands, m)
 
-    m$time_break <-
-        if (class(time_break) == "function"){
-            time_break(m)
-        } else {
-            time_break
-        }
+    m$time_break <- .its.produce(time_break, m)
 
     result <-
         dplyr::group_by(m, sample_id, time_break) %>%
@@ -77,24 +72,6 @@ its.feat <- function(m, bands = NULL, time_break = its.t_break("2000-09-01", "12
     return(result)
 }
 
-#' @title massits features functions
-#' @name its.feat.apply
-#' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
-#' @description  Applies a function to all feature tibble's attributes columns.
-#' @param f             A valid massits measures tibble
-#' @param fun           A valid function with one argument to be applied on each measure attribute.
-#' @return Massits feature table
-#' @export
-its.feat.apply <- function(f, fun){
-    its.feat.valid(f, "its.feat.apply - invalid data input.")
-    result <- dplyr::mutate_at(f, -which(names(f) %in% its.feat.cols), fun)
-
-    result <-
-        result %>%
-        .its.feat.stamp()
-    return(result)
-}
-
 #' @title massits utils functions
 #' @name its.feat.drop_na
 #' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
@@ -104,8 +81,10 @@ its.feat.apply <- function(f, fun){
 #' @export
 its.feat.drop_na <- function(f){
     its.feat.valid(f, "its.feat.length - invalid data input")
+
+    fields <- which(!(names(f) %in% its.feat.cols))
     result <-
-        tidyr::drop_na(f, -which(names(f) %in% its.feat.cols)) %>%
+        tidyr::drop_na(f, fields) %>%
         .its.feat.stamp()
     return(result)
 }
