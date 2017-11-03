@@ -19,6 +19,16 @@ its.cols <-
       "reference")
 
 #' @title massits utils globals
+#' @name its.sample_cols
+#' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
+#' @description  Massits tibble column names
+its.sample_cols <-
+    c("sample_id",
+      "x",
+      "y",
+      "reference")
+
+#' @title massits utils globals
 #' @name its.feat.cols
 #' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
 #' @description  Massits features tibble column names
@@ -27,10 +37,12 @@ its.feat.cols <-
       "x",
       "y",
       "t",
-      "reference")
+      "reference",
+      "from",
+      "to")
 
 #' @title massits utils globals
-#' @name its.class.cols
+#' @name its.pred.cols
 #' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
 #' @description  Massits features tibble column names
 its.pred.cols <-
@@ -39,7 +51,17 @@ its.pred.cols <-
       "y",
       "t",
       "reference",
+      "from",
+      "to",
       "predicted")
+
+#' @title massits utils globals
+#' @name its.attrs
+#' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
+#' @description  Massits features tibble column names
+its.attrs <-
+    c("its_raster",
+      "levels")
 
 # massits global variables
 utils::globalVariables(c(its.cols,
@@ -90,16 +112,18 @@ its <- function(x, col_names = NULL){
 #' @param m             A valid massits tibble
 #' @param fun           A valid function with one argument to be applied on each attribute
 #'                      (its first argument).
-#' @param bands         A string vector indicating those fields (bands) to which
-#'                      function \code{fun} will be applied. All non selected fields
-#'                      will remain unchanged (Default \code{its.bands()}).
 #' @param bands_params  An optional parameter to be passed as \code{fun} second argument.
 #'                      If informed, it must have \code{1} or the same number of bands.
 #'                      (Default \code{NULL})
+#' @param bands         A string vector indicating those fields (bands) to which
+#'                      function \code{fun} will be applied. All non selected fields
+#'                      will remain unchanged (Default \code{its.bands()}).
 #' @return Massits table
 #' @export
-its.apply <- function(m, fun, bands = its.bands(), bands_params = NULL){
+its.apply <- function(m, fun, bands_params = NULL, bands = its.bands()){
     its.valid(m, "its.apply - invalid data input.")
+
+    attrs <- attributes(m)[its.attrs]
 
     bands <- .its.produce(bands, m)
 
@@ -123,7 +147,7 @@ its.apply <- function(m, fun, bands = its.bands(), bands_params = NULL){
 
     result <-
         result %>%
-        .its.stamp()
+        .its.stamp(attrs)
     return(result)
 }
 
@@ -132,14 +156,14 @@ its.apply <- function(m, fun, bands = its.bands(), bands_params = NULL){
 #' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
 #' @description  Substitute some missing values by \code{NA} in massits tibble's fields.
 #' @param m             A valid massits tibble
+#' @param na_values     The missing value to be substituted by \code{NA}
+#'                      (Default \code{-3000})
 #' @param bands         A string vector indicating those fields (bands)
 #'                      to be interpolated. All non selected fields
 #'                      will remain unchanged (Default \code{its.bands()}).
-#' @param na_values     The missing value to be substituted by \code{NA}
-#'                      (Default \code{-3000})
 #' @return Massits table
 #' @export
-its.apply_na <- function(m, bands = its.bands(), na_values = -3000){
+its.apply_na <- function(m, na_values = -3000, bands = its.bands()){
 
     result <- its.apply(m,
                         function(x, p){
@@ -156,14 +180,14 @@ its.apply_na <- function(m, bands = its.bands(), na_values = -3000){
 #' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
 #' @description  Scaling factor to transform values of massits tibble's fields.
 #' @param m             A valid massits tibble
+#' @param factors       Scaling factor to multiply all selected field values
+#'                      (Default \code{0.0001}).
 #' @param bands         A string vector indicating those fields (bands)
 #'                      to be re-scaled. All non selected fields
 #'                      will remain unchanged (Default \code{its.bands()}).
-#' @param factors       Scaling factor to multiply all selected field values
-#'                      (Default \code{0.0001}).
 #' @return Massits table
 #' @export
-its.scale <- function(m, bands = its.bands(), factors = c(0.0001)){
+its.scale <- function(m, factors = c(0.0001), bands = its.bands()){
 
     result <- its.apply(m, fun = function(x, p) return(x * p),
                         bands = bands, bands_params = factors)
@@ -176,14 +200,14 @@ its.scale <- function(m, bands = its.bands(), factors = c(0.0001)){
 #' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
 #' @description  Translation to be added in values of massits tibble's fields.
 #' @param m             A valid massits tibble
+#' @param amounts       Amount value to be added in all selected field values.
+#'                      (Default \code{3}).
 #' @param bands         A string vector indicating those fields (bands)
 #'                      to be displaced. All non selected fields
 #'                      will remain unchanged (Default \code{its.bands()}).
-#' @param amounts       Amount value to be added in all selected field values.
-#'                      (Default \code{3}).
 #' @return Massits table
 #' @export
-its.translate <- function(m, bands = its.bands(), amounts = c(3)){
+its.translate <- function(m, amounts = c(3), bands = its.bands()){
 
     result <- its.apply(m, fun = function(x, p) return(x + p),
                         bands = bands, bands_params = amounts)

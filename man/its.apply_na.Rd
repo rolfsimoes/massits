@@ -4,17 +4,17 @@
 \alias{its.apply_na}
 \title{massits time series functions}
 \usage{
-its.apply_na(m, bands = its.bands(), na_values = -3000)
+its.apply_na(m, na_values = -3000, bands = its.bands())
 }
 \arguments{
 \item{m}{A valid massits tibble}
 
+\item{na_values}{The missing value to be substituted by \code{NA}
+(Default \code{-3000})}
+
 \item{bands}{A string vector indicating those fields (bands)
 to be interpolated. All non selected fields
 will remain unchanged (Default \code{its.bands()}).}
-
-\item{na_values}{The missing value to be substituted by \code{NA}
-(Default \code{-3000})}
 }
 \value{
 Massits table

@@ -4,18 +4,20 @@
 library(massits)
 
 # open massits sample data
-mt.tb <- readRDS(system.file("extdata/data/mt.rds"))
+mt.tb <- readRDS(system.file("extdata/data/mt.rds", package = "massits"))
 
 # transforms it in massits features data
 mt_f.tb <-
     mt.tb %>%
-    its.feat(bands = c("ndvi", "evi", "nir", "mir"),
-             time_break = its.t_break("2000-09-01", "12 months", mt.tb),
-             drop_na = TRUE)
+    its.select(evi, ndvi) %>%
+    its.scale(10000) %>%
+    its.apply_na() %>%
+    its.interp.na() %>%
+    its.translate(30000) %>%
+    its.feat()
 
 # estimate accuracy
 mt_f.tb %>%
-    its.feat.apply(function(x) x + 3) %>%
     its.ml.cross_validation(ml_model = its.ml.model.svm_radial(formula = its.formula.log(), cost = 10),
                             cross = 5)
 #' Confusion Matrix and Statistics
@@ -67,7 +69,6 @@ mt_f.tb %>%
 # train SVM model
 its.predict <-
     mt_f.tb %>%
-    its.feat.apply(function(x) x + 3) %>%
     its.ml.create_predict(ml_model = its.ml.model.svm_radial(formula = its.formula.log(), cost = 10),
                           summation = c("rentropy"))
 

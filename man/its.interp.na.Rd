@@ -23,7 +23,8 @@ will remain unchanged (Default \code{its.bands()}).}
 Massits table
 }
 \description{
-Applies a function to some massits tibble's columns.
+Performs an interpolation on those measurements with NA value in
+              some massits tibble's columns.
 }
 \author{
 Rolf Simoes, \email{rolf.simoes@inpe.br}

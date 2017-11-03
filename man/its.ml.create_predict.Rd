@@ -15,7 +15,7 @@ its.ml.create_predict(f, ml_model = its.ml.model.svm_radial(),
 \item{summation}{String value indicating a summation regarding the prediction}
 }
 \value{
-Massits predicted tibble
+A prediction function that receives as input a massits features tibble
 }
 \description{
 This function returns a predict function to be applied on data to be classified.

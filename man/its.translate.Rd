@@ -4,17 +4,17 @@
 \alias{its.translate}
 \title{massits time series functions}
 \usage{
-its.translate(m, bands = its.bands(), amounts = c(3))
+its.translate(m, amounts = c(3), bands = its.bands())
 }
 \arguments{
 \item{m}{A valid massits tibble}
 
+\item{amounts}{Amount value to be added in all selected field values.
+(Default \code{3}).}
+
 \item{bands}{A string vector indicating those fields (bands)
 to be displaced. All non selected fields
 will remain unchanged (Default \code{its.bands()}).}
-
-\item{amounts}{Amount value to be added in all selected field values.
-(Default \code{3}).}
 }
 \value{
 Massits table

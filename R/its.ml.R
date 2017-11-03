@@ -50,7 +50,7 @@ its.ml.model.svm_radial <- function(f = NULL, formula = its.formula.linear(),
 #' @param f             A valid massits measures tibble
 #' @param ml_model      A valid machine learning model function
 #' @param summation     String value indicating a summation regarding the prediction
-#' @return Massits predicted tibble
+#' @return A prediction function that receives as input a massits features tibble
 #' @export
 its.ml.create_predict <- function(f, ml_model = its.ml.model.svm_radial(),
                                   summation = c("probabilities", "entropy", "rentropy", "none")){
@@ -58,61 +58,62 @@ its.ml.create_predict <- function(f, ml_model = its.ml.model.svm_radial(),
 
     model <- ml_model(f)
 
-    its.ml.predict <- function(f, factors = FALSE){
-            its.feat.valid(f, "its.ml.create_predict - invalid input data")
+    its.ml.predict <- function(f){
+        its.feat.valid(f, "its.ml.predict - invalid input data")
 
-            eval(parse(text = paste0("library(", attr(model, "library"), ")")))
+        attrs <- attributes(f)[its.attrs]
+        attrs$levels <- attr(model, "levels")
 
-            result <- f %>%
-                dplyr::select(its.feat.cols)
+        eval(parse(text = sprintf("require(%s, quietly = TRUE, warn.conflicts = FALSE)",
+                                  attr(model, "library"))))
 
-            predicted <- stats::predict(model,
-                                        newdata = f[-which(names(f) %in% its.feat.cols)],
-                                        probability = (summation[1] != "none"))
+        result <- f %>%
+            dplyr::select(its.feat.cols)
 
-            result$predicted <- as.character(predicted)
+        predicted <- stats::predict(model,
+                                    newdata = f[-which(names(f) %in% its.feat.cols)],
+                                    probability = (summation[[1]] != "none"))
 
-            if (summation[1] != "none"){
+        result <-
+            result %>%
+            dplyr::mutate(reference = factor(reference, levels = attr(model, "levels")),
+                          predicted = factor(predicted, levels = attr(model, "levels")))
+
+
+        if (summation[1] != "none"){
+            probs.tb <-
+                attr(predicted, "probabilities") %>%
+                tibble::as_tibble()
+
+            if (summation[1] %in% c("entropy", "rentropy")){
                 probs.tb <-
-                    attr(predicted, "probabilities") %>%
-                    tibble::as_tibble()
+                    probs.tb %>%
+                    dplyr::mutate_all(function(x) ifelse(x > 0, x * log(x), 0))
 
-                if (summation[1] %in% c("entropy", "rentropy")){
-                    probs.tb <-
+                probs.tb <-
+                    if (summation[1] %in% c("entropy")){
                         probs.tb %>%
-                        dplyr::mutate_all(function(x) ifelse(x > 0, x * log(x), 0))
-
-                    probs.tb <-
-                        if (summation[1] %in% c("entropy")){
+                            dplyr::mutate(entropy = -rowSums(.))
+                    } else {
+                        probs.tb <-
                             probs.tb %>%
-                                dplyr::mutate(entropy = -rowSums(.))
-                        } else {
-                            probs.tb <-
-                                probs.tb %>%
-                                dplyr::mutate(rentropy = -rowSums(.) / log(NCOL(probs.tb)))
-                        }
-                    result <-
-                        dplyr::bind_cols(list(result, probs.tb[summation[1]]))
-
-                } else {
-                    result <-
-                        dplyr::bind_cols(list(result, probs.tb))
-                }
-            }
-
-            if (factors){
+                            dplyr::mutate(rentropy = -rowSums(.) / log(NCOL(probs.tb)))
+                    }
                 result <-
-                    result %>%
-                    dplyr::mutate(reference = factor(reference, levels = attr(model, "levels")),
-                                  predicted = factor(predicted, levels = attr(model, "levels")))
+                    dplyr::bind_cols(list(result, probs.tb[summation[1]]))
+
+            } else {
+                result <-
+                    dplyr::bind_cols(list(result, probs.tb))
             }
-
-            result <-
-                result %>%
-                .its.predicted.stamp()
-
-            return(result)
         }
+
+        result <-
+            result %>%
+            .its.pred.stamp(attrs)
+
+        return(result)
+    }
 
     return(its.ml.predict)
 }

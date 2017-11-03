@@ -19,13 +19,15 @@ its.feat <- function(m, bands = its.bands(),
 
     its.valid(m, "its.feat - invalid data input.")
 
+    attrs <- attributes(m)[its.attrs]
+
     bands <- .its.produce(bands, m)
 
     m$time_break <- .its.produce(time_break, m)
 
     result <-
         dplyr::group_by(m, sample_id, time_break) %>%
-        dplyr::mutate(t = 1:n()) %>%
+        dplyr::mutate(from = min(t), to = max(t), t = 1:n()) %>%
         dplyr::ungroup()
 
     if (!is.null(measure_id))
@@ -47,16 +49,17 @@ its.feat <- function(m, bands = its.bands(),
     result <-
         if (cores > 1){
             cluster <-
-                multidplyr::create_cluster(cores = cores) %>%
+                multidplyr::create_cluster(cores = cores, quiet = TRUE) %>%
                 multidplyr::cluster_library("tidyr")
 
             result %>%
-                multidplyr::partition(sample_id, cluster = cluster) %>%
+                multidplyr::partition(y, cluster = cluster) %>%
                 dplyr::do(.data %>% (function(data.tb){
                     data.tb %>%
                         tidyr::spread(key, value)
                 })) %>%
-                dplyr::collect()
+                dplyr::collect() %>%
+                dplyr::ungroup()
         } else {
             result %>%
                 tidyr::spread(key, value)
@@ -67,7 +70,7 @@ its.feat <- function(m, bands = its.bands(),
 
     result <-
         result %>%
-        .its.feat.stamp()
+        .its.feat.stamp(attrs)
 
     return(result)
 }
@@ -82,10 +85,12 @@ its.feat <- function(m, bands = its.bands(),
 its.feat.drop_na <- function(f){
     its.feat.valid(f, "its.feat.length - invalid data input")
 
+    attrs <- attributes(f)[its.attrs]
+
     fields <- which(!(names(f) %in% its.feat.cols))
     result <-
         tidyr::drop_na(f, fields) %>%
-        .its.feat.stamp()
+        .its.feat.stamp(attrs)
     return(result)
 }
 
@@ -100,6 +105,8 @@ its.feat.drop_na <- function(f){
 its.feat.create_folds <- function(f, cross){
     its.feat.valid(f, "its.feat.create_folds - invalid data input.")
 
+    attrs <- attributes(f)[its.attrs]
+
     partitions <- sample(rep(seq_len(cross), each = ceiling(NROW(f) / cross))[1:NROW(f)])
 
     its.feat.fold <-
@@ -107,10 +114,10 @@ its.feat.create_folds <- function(f, cross){
             result <-
                 if (i >= 0){
                     dplyr::filter(f, partitions == i) %>%
-                        .its.feat.stamp()
+                        .its.feat.stamp(attrs)
                 } else {
                     dplyr::filter(f, partitions != -i) %>%
-                        .its.feat.stamp()
+                        .its.feat.stamp(attrs)
                 }
             return(result)
         }

@@ -4,17 +4,17 @@
 \alias{its.scale}
 \title{massits time series functions}
 \usage{
-its.scale(m, bands = its.bands(), factors = c(1e-04))
+its.scale(m, factors = c(1e-04), bands = its.bands())
 }
 \arguments{
 \item{m}{A valid massits tibble}
 
+\item{factors}{Scaling factor to multiply all selected field values
+(Default \code{0.0001}).}
+
 \item{bands}{A string vector indicating those fields (bands)
 to be re-scaled. All non selected fields
 will remain unchanged (Default \code{its.bands()}).}
-
-\item{factors}{Scaling factor to multiply all selected field values
-(Default \code{0.0001}).}
 }
 \value{
 Massits table

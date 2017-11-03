@@ -4,7 +4,7 @@
 \alias{its.apply}
 \title{massits time series functions}
 \usage{
-its.apply(m, fun, bands = its.bands(), bands_params = NULL)
+its.apply(m, fun, bands_params = NULL, bands = its.bands())
 }
 \arguments{
 \item{m}{A valid massits tibble}
@@ -12,13 +12,13 @@ its.apply(m, fun, bands = its.bands(), bands_params = NULL)
 \item{fun}{A valid function with one argument to be applied on each attribute
 (its first argument).}
 
-\item{bands}{A string vector indicating those fields (bands) to which
-function \code{fun} will be applied. All non selected fields
-will remain unchanged (Default \code{its.bands()}).}
-
 \item{bands_params}{An optional parameter to be passed as \code{fun} second argument.
 If informed, it must have \code{1} or the same number of bands.
 (Default \code{NULL})}
+
+\item{bands}{A string vector indicating those fields (bands) to which
+function \code{fun} will be applied. All non selected fields
+will remain unchanged (Default \code{its.bands()}).}
 }
 \value{
 Massits table

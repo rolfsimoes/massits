@@ -16,6 +16,7 @@ Imports:
     multidplyr,
     purrr,
     tidyr,
+    raster,
     lubridate,
     stats,
     e1071,
