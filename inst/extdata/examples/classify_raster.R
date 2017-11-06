@@ -28,7 +28,8 @@ while(TRUE){
         its.predict()
 
     chunk.tb %>%
-        its.raster.save_chunk("~/../Downloads/test.tif", overwrite = TRUE)
+        its.raster.save_chunk("~/../Downloads/test.tif",
+                              overwrite = TRUE, save_bylayer = FALSE)
 
     if (its.raster.end(chunk.tb)) break
     chunk.tb <- its.raster.next_chunk(chunk.tb)

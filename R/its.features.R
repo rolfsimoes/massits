@@ -23,7 +23,7 @@ its.feat <- function(m, bands = its.bands(),
 
     bands <- .its.produce(bands, m)
 
-    m$time_break <- .its.produce(time_break, m)
+    m$time_break <- .its.produce(time_break, m$t)
 
     result <-
         dplyr::group_by(m, sample_id, time_break) %>%

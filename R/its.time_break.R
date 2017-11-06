@@ -10,27 +10,26 @@
 #' @param t_interval    A valid interval to compose a theoretical time series breaking periods
 #'                      Can be numeric if \code{from} is numeric or a \code{lubridate::period}
 #'                      if \code{from} is \code{datetime}.
-#' @param m             A valid massits tibble
+#' @param t             Any representative time vector, e.g. Numeric, Integer, or Date/Time values.
 #' @return Numeric vector
 #' @export
-its.t_break <- function(t_start, t_interval, m = NULL){
+its.t_break <- function(t_start, t_interval, t = NULL){
     result <-
-        .its.factory(m, function(m){
-            its.valid(m, "its.t_break - invalid data input.")
+        .its.factory(t, function(x){
 
             sequence <-
-                if (class(m$t) == "Date"){
+                if (class(x) == "Date"){
                     seq(from = lubridate::as_date(t_start),
-                        to   = max(m$t) + lubridate::period(t_interval),
+                        to   = max(x) + lubridate::period(t_interval),
                         by   = t_interval)
                 } else {
                     seq(from = t_start,
-                        to   = max(m$t) + t_interval,
+                        to   = max(x) + t_interval,
                         by   = t_interval)
                 }
 
             result <-
-                cut(m$t,
+                cut(x,
                     sequence,
                     right = FALSE, labels = FALSE)
 
@@ -52,7 +51,7 @@ its.t_break <- function(t_start, t_interval, m = NULL){
 its.t_break.count <- function(m, time_break){
     its.valid(m, "its.t_break.count - invalid data input.")
 
-    m$time_break <- .its.produce(time_break, m)
+    m$time_break <- .its.produce(time_break, m$t)
 
     result <- table(m$sample_id, m$time_break)
 
@@ -75,7 +74,7 @@ its.t_break.count <- function(m, time_break){
 its.t_break.measures <- function(m, time_break){
     its.valid(m, "its.t_break.measures - invalid data input.")
 
-    m$time_break <- .its.produce(time_break, m)
+    m$time_break <- .its.produce(time_break, m$t)
 
     m <-
         dplyr::group_by(m, sample_id, time_break) %>%
@@ -103,7 +102,7 @@ its.t_break.measures <- function(m, time_break){
 its.t_break.dates <- function(m, time_break){
     its.valid(m, "its.t_break.dates - invalid data input.")
 
-    m$time_break <- .its.produce(time_break, m)
+    m$time_break <- .its.produce(time_break, m$t)
 
     m <-
         dplyr::group_by(m, sample_id, time_break) %>%

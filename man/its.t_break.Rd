@@ -4,7 +4,7 @@
 \alias{its.t_break}
 \title{massits break functions}
 \usage{
-its.t_break(t_start, t_interval, m = NULL)
+its.t_break(t_start, t_interval, t = NULL)
 }
 \arguments{
 \item{t_start}{A valid time series index. Can be \code{numeric} or \code{lubridate::date}}
@@ -13,7 +13,7 @@ its.t_break(t_start, t_interval, m = NULL)
 Can be numeric if \code{from} is numeric or a \code{lubridate::period}
 if \code{from} is \code{datetime}.}
 
-\item{m}{A valid massits tibble}
+\item{t}{Any representative time vector, e.g. Numeric, Integer, or Date/Time values.}
 }
 \value{
 Numeric vector

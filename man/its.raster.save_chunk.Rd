@@ -5,7 +5,7 @@
 \title{massits raster functions}
 \usage{
 its.raster.save_chunk(chunk.tb, file = "~/Downloads/test.tif",
-  overwrite = FALSE, save_bands = its.bands())
+  overwrite = FALSE, save_bylayer = TRUE, save_bands = its.bands())
 }
 \arguments{
 \item{chunk.tb}{A valid massits predicted tibble.}
@@ -13,6 +13,8 @@ its.raster.save_chunk(chunk.tb, file = "~/Downloads/test.tif",
 \item{file}{A file path to be used as base name of files to be saved.}
 
 \item{overwrite}{Logical indicating if file can be overitten (Default \code{FALSE}).}
+
+\item{save_bylayer}{Save each time period as a separated file (Default \code{TRUE}).}
 
 \item{save_bands}{Bands to be saved (Default \code{its.bands}).}
 }
