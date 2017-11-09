@@ -4,14 +4,13 @@
 #' @description  Creates a new massits raster data from a list of files.
 #'               The object can be used in its.raster function family.
 #' @param bands         A named list with all raster files, e.g. \code{band_name="file_path"}.
-#'                      \code{RasterBrick} is a class of package \code{raster}.
 #' @param chunk_size    A raw number or a function informing the number of pixels to
 #'                      be computed. The function receives as its argument the raster brick object.
 #'                      This number is rounded to rows (Default \code{4900} \eqn{(70x70)}).
 #' @return Massits tibble with an \code{its_raster} object in its attributes.
 #' @export
-its.raster <- function(bands = list(evi = raster::brick("~/Downloads/sinop-crop-evi.tif"),
-                                    ndvi = raster::brick("~/Downloads/sinop-crop-ndvi.tif")),
+its.raster <- function(bands = list(evi = "~/Downloads/sinop-crop-evi.tif",
+                                    ndvi = "~/Downloads/sinop-crop-ndvi.tif"),
                        chunk_size = 4900){
 
     chunk_size <- .its.produce(chunk_size, template)
@@ -19,17 +18,13 @@ its.raster <- function(bands = list(evi = raster::brick("~/Downloads/sinop-crop-
     bands <-
         bands %>%
         lapply(function(x){
-            if (is.character(x)){
-                if (length(x) == 1)
-                    return(raster::brick(x))
-                else
-                    return(lapply(x, raster::raster))
-            }
+            if (is.character(x))
+                return(raster::brick(x))
             stop("its.raster - invalid bands")
         })
 
     r <- list()
-    r$template <- ifelse(length(bands[[1]]) == 1, bands[[1]], bands[[1]][[1]])
+    r$template <- bands[[1]]
     r$bands <- bands
     r$chunk_size <- raster::blockSize(r$template, chunk_size, minblocks = 1)
     r$next_chunk <- 1

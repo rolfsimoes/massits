@@ -1,5 +1,7 @@
 #!/usr/bin/env Rscript
 
+library(massits)
+
 # train a predict model (SVM kernel radial, formula logarithm)
 its.predict <-
     readRDS(system.file("extdata/data/mt.rds", package = "massits")) %>%
@@ -13,8 +15,8 @@ its.predict <-
                           summation = "rentropy")
 
 # open raster bricks with time series
-chunk.tb <- its.raster(bands = list(evi = "~/../Downloads/Sinop-crop-evi.tif",
-                                    ndvi = "~/../Downloads/Sinop-crop-ndvi.tif"),
+chunk.tb <- its.raster(bands = list(evi = "~/Downloads/Sinop_evi.tif",
+                                    ndvi = "~/Downloads/Sinop_ndvi.tif"),
                        chunk_size = 40 * 40)
 
 # process
@@ -28,7 +30,7 @@ while(TRUE){
         its.predict()
 
     chunk.tb %>%
-        its.raster.save_chunk("~/../Downloads/test.tif",
+        its.raster.save_chunk("~/Downloads/Sinop.tif",
                               overwrite = TRUE, save_bylayer = FALSE)
 
     if (its.raster.end(chunk.tb)) break
