@@ -48,18 +48,25 @@ its.feat <- function(m, bands = its.bands(),
 
     result <-
         if (cores > 1){
-            cluster <-
-                multidplyr::create_cluster(cores = cores, quiet = TRUE) %>%
-                multidplyr::cluster_library("tidyr")
+            # cluster <-
+            #     multidplyr::create_cluster(cores = cores, quiet = TRUE) %>%
+            #     multidplyr::cluster_library("tidyr")
 
-            result %>%
-                multidplyr::partition(y, cluster = cluster) %>%
-                dplyr::do(.data %>% (function(data.tb){
+            # result %>%
+            #     multidplyr::partition(y, cluster = cluster) %>%
+            #     dplyr::do(.data %>% (function(data.tb){
+            #         data.tb %>%
+            #             tidyr::spread(key, value)
+            #     })) %>%
+            #     dplyr::collect() %>%
+            #     dplyr::ungroup()
+
+            split(result, result$sample_id) %>%
+                parallel::mclapply(function(data.tb){
                     data.tb %>%
                         tidyr::spread(key, value)
-                })) %>%
-                dplyr::collect() %>%
-                dplyr::ungroup()
+                }, mc.silent = TRUE, mc.cores = cores) %>%
+                dplyr::bind_rows()
         } else {
             result %>%
                 tidyr::spread(key, value)

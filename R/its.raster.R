@@ -13,8 +13,6 @@ its.raster <- function(bands = list(evi = "~/Downloads/sinop-crop-evi.tif",
                                     ndvi = "~/Downloads/sinop-crop-ndvi.tif"),
                        chunk_size = 4900){
 
-    chunk_size <- .its.produce(chunk_size, template)
-
     bands <-
         bands %>%
         lapply(function(x){

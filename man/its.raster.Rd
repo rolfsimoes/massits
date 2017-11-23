@@ -4,12 +4,11 @@
 \alias{its.raster}
 \title{massits raster functions}
 \usage{
-its.raster(bands = list(evi = raster::brick("~/Downloads/sinop-crop-evi.tif"),
-  ndvi = raster::brick("~/Downloads/sinop-crop-ndvi.tif")), chunk_size = 4900)
+its.raster(bands = list(evi = "~/Downloads/sinop-crop-evi.tif", ndvi =
+  "~/Downloads/sinop-crop-ndvi.tif"), chunk_size = 4900)
 }
 \arguments{
-\item{bands}{A named list with all raster bricks (e.g. \code{band_name=raster::brick("file_path")}).
-\code{RasterBrick} is a class of package \code{raster}.}
+\item{bands}{A named list with all raster files, e.g. \code{band_name="file_path"}.}
 
 \item{chunk_size}{A raw number or a function informing the number of pixels to
 be computed. The function receives as its argument the raster brick object.
