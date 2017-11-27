@@ -4,19 +4,23 @@
 \alias{its}
 \title{massits time series functions}
 \usage{
-its(x, col_names = NULL)
+its(d, col_names = NULL, t_length = 393)
 }
 \arguments{
-\item{x}{A data source to be converted to massits tibble}
+\item{d}{A data source to be converted to massits tibble}
 
 \item{col_names}{A string vector informing corresponding valid column names of the input
-as expected in a massive data tibble}
+as expected in a massive data tibble (Default \code{NULL}).}
+
+\item{t_length}{An integer informing the length of each time series. Used only in the
+case when \code{t} attribute has \code{NULL} values. It creates a
+repeated integer sequence in \code{t} field (Default \code{393}).}
 }
 \value{
 Massits tibble
 }
 \description{
-Create a new massits tibble loaded from \code{x} input.
+Create a new massits tibble loaded from \code{d} input.
 }
 \author{
 Rolf Simoes, \email{rolf.simoes@inpe.br}

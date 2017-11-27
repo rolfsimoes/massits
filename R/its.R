@@ -76,29 +76,51 @@ utils::globalVariables(c(its.cols,
 #' @title massits time series functions
 #' @name its
 #' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
-#' @description  Create a new massits tibble loaded from \code{x} input.
-#' @param x             A data source to be converted to massits tibble
+#' @description  Create a new massits tibble loaded from \code{d} input.
+#' @param d             A data source to be converted to massits tibble
 #' @param col_names     A string vector informing corresponding valid column names of the input
-#'                      as expected in a massive data tibble
+#'                      as expected in a massive data tibble (Default \code{NULL}).
+#' @param t_length      An integer informing the length of each time series. Used only in the
+#'                      case when \code{t} attribute has \code{NULL} values. It creates a
+#'                      repeated integer sequence in \code{t} field (Default \code{393}).
 #' @return Massits tibble
 #' @export
-its <- function(x, col_names = NULL){
+its <- function(d, col_names = NULL, t_length = 393){
 
-    m <- tibble::as_tibble(x)
+    m <- tibble::as_tibble(d)
 
-    if (!(is.null(col_names)))
+    if (!(is.null(col_names))){
+        col_names[1:min(length(names(m)), length(col_names))][is.null(col_names)] <- names(m)[1:min(length(names(m)), length(col_names))]
         names(m) <- c(col_names, names(m)[-length(col_names):0])
+    }
 
-    if (!("sample_id" %in% names(m)))
-        m <-
-            m %>%
-            dplyr::mutate(sample_id = dplyr::group_indices(m, x, y))
+    if (!("sample_id" %in% names(m))){
+        if (!(all(c("x", "y") %in% names(m)))){
+            m$sample_id <- as.integer(NA)
+        } else {
+            m <- m %>%
+                dplyr::mutate(sample_id = dplyr::group_indices(m, x, y))
+        }
+    }
+
+    if (!("x" %in% names(m)))
+        m$x <- as.double(NA)
+
+    if (!("y" %in% names(m)))
+        m$y <- as.double(NA)
+
+    if (!("t" %in% names(m))){
+        if (is.null(t_length)){
+            m$t <- as.double(NA)
+        } else {
+            m$t <- rep_len(1:t_length, length.out = NROW(m))
+        }
+    }
 
     if (!("reference" %in% names(m)))
         m$reference <- as.character(NA)
 
-    m <-
-        m %>%
+    m <- m %>%
         dplyr::select(its.cols, dplyr::everything()) %>%
         .its.stamp()
 
@@ -140,7 +162,7 @@ its.apply <- function(m, fun, bands_params = NULL, bands = its.bands()){
             result <-
                 dplyr::mutate_at(result,
                                  bands[[i]],
-                                 function(x) fun(x, bands_params[[i]]))
+                                 function(d) fun(d, bands_params[[i]]))
         }
     } else
         result <- dplyr::mutate_at(result, bands, fun)
@@ -166,9 +188,9 @@ its.apply <- function(m, fun, bands_params = NULL, bands = its.bands()){
 its.apply_na <- function(m, na_values = -3000, bands = its.bands()){
 
     result <- its.apply(m,
-                        function(x, p){
-                            x[x==p] <- NA
-                            return(x)
+                        function(d, p){
+                            d[d==p] <- NA
+                            return(d)
                         },
                         bands = bands, bands_params = na_values)
 
@@ -189,7 +211,7 @@ its.apply_na <- function(m, na_values = -3000, bands = its.bands()){
 #' @export
 its.scale <- function(m, factors = c(0.0001), bands = its.bands()){
 
-    result <- its.apply(m, fun = function(x, p) return(x * p),
+    result <- its.apply(m, fun = function(d, p) return(d * p),
                         bands = bands, bands_params = factors)
 
     return(result)
@@ -209,7 +231,7 @@ its.scale <- function(m, factors = c(0.0001), bands = its.bands()){
 #' @export
 its.translate <- function(m, amounts = c(3), bands = its.bands()){
 
-    result <- its.apply(m, fun = function(x, p) return(x + p),
+    result <- its.apply(m, fun = function(d, p) return(d + p),
                         bands = bands, bands_params = amounts)
 
     return(result)

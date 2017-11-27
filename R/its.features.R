@@ -23,54 +23,52 @@ its.feat <- function(m, bands = its.bands(),
 
     bands <- .its.produce(bands, m)
 
-    m$time_break <- .its.produce(time_break, m$t)
+    time_break <- .its.produce(time_break, m$t)
+    t_length <- max(rle(time_break)$lengths)
 
     result <-
-        dplyr::group_by(m, sample_id, time_break) %>%
-        dplyr::mutate(from = min(t), to = max(t), t = 1:n()) %>%
-        dplyr::ungroup()
+        purrr::map2(m[its.cols], its.cols, function(b, b_name){
+            result <-
+                b[!is.na(time_break)] %>%
+                matrix(nrow = t_length) %>%
+                t() %>% .[,1]
+            result <- result %>%
+                tibble::as_tibble()
+            names(result) <- b_name
+            return(result)
+        }) %>%
+        dplyr::bind_cols()
 
-    if (!is.null(measure_id))
-        result <- dplyr::filter(result, t %in% measure_id)
+    time_range <-
+        purrr::map2(m["t"], "t", function(b, b_name){
+            result <-
+                b[!is.na(time_break)] %>%
+                matrix(nrow = t_length) %>%
+                t() %>% .[, c(1, t_length)]
+            result <- result %>%
+                tibble::as_tibble()
+            names(result) <- c("from", "to")
+            return(result)
+        }) %>%
+        dplyr::bind_cols()
+
+    features <-
+        purrr::map2(m[bands], bands, function(b, b_name){
+            result <-
+                b[!is.na(time_break)] %>%
+                matrix(nrow = t_length) %>%
+                t()
+            result <- result %>%
+                tibble::as_tibble()
+            names(result) <- paste(b_name, 1:NCOL(result), sep = ".")
+            return(result)
+        }) %>%
+        dplyr::bind_cols()
 
     result <-
-        dplyr::select(result, its.feat.cols, bands, time_break) %>%
-        tidyr::gather_(key_col = "key", value_col = "value", gather_cols = bands)
-
-    result <-
-        result %>%
-        dplyr::mutate(key = paste(key, sprintf(paste0("%0", nchar(max(t)), "d"), t), sep="."))
-
-    result <-
-        result %>%
-        dplyr::mutate(t = time_break) %>%
-        dplyr::select(-time_break)
-
-    result <-
-        if (cores > 1){
-            # cluster <-
-            #     multidplyr::create_cluster(cores = cores, quiet = TRUE) %>%
-            #     multidplyr::cluster_library("tidyr")
-
-            # result %>%
-            #     multidplyr::partition(y, cluster = cluster) %>%
-            #     dplyr::do(.data %>% (function(data.tb){
-            #         data.tb %>%
-            #             tidyr::spread(key, value)
-            #     })) %>%
-            #     dplyr::collect() %>%
-            #     dplyr::ungroup()
-
-            split(result, result$sample_id) %>%
-                parallel::mclapply(function(data.tb){
-                    data.tb %>%
-                        tidyr::spread(key, value)
-                }, mc.silent = TRUE, mc.cores = cores) %>%
-                dplyr::bind_rows()
-        } else {
-            result %>%
-                tidyr::spread(key, value)
-        }
+        list(result, time_range, features) %>%
+        dplyr::bind_cols() %>%
+        dplyr::select(its.feat.cols, dplyr::everything())
 
     if (drop_na)
         result <- tidyr::drop_na(result, -which(names(result) %in% its.feat.cols))

@@ -31,7 +31,12 @@ its.t_break <- function(t_start, t_interval, t = NULL){
             result <-
                 cut(x,
                     sequence,
-                    right = FALSE, labels = FALSE)
+                    right = FALSE, labels = FALSE) %>%
+                rle()
+
+            result$values[result$lengths != max(result$lengths)] <- NA
+
+            result <- inverse.rle(result)
 
             return(result)
         })
