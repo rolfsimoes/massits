@@ -8,7 +8,7 @@ its.ml.create_predict(f, ml_model = its.ml.model.svm_radial(),
   summation = c("probabilities", "entropy", "rentropy", "none"))
 }
 \arguments{
-\item{f}{A valid massits measures tibble}
+\item{f}{A massits features tibble to compose the formula expression.}
 
 \item{ml_model}{A valid machine learning model function}
 

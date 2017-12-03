@@ -1,7 +1,7 @@
 Package: massits
 Type: Package
 Title: Massive Satellite Image Time Series
-Version: 0.1.42
+Version: 0.1.99
 Author: Rolf Simoes
 Maintainer: Rolf Simoes <rolf.simoes@inpe.br>
 Description: This is a Massise, fast, and light-weight satellite image time series 
@@ -14,8 +14,8 @@ Imports:
     tibble,
     dplyr,
     purrr,
-    tidyr,
     raster,
+    parallel,
     lubridate,
     stats,
     e1071,

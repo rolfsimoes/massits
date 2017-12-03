@@ -9,7 +9,7 @@
 #' @return Logical
 #' @export
 its.valid <- function(m, err_desc = NULL){
-    if (is.null(m) | !all(its.cols %in% names(m)) | (NROW(m) < 1))
+    if (is.null(m) | !all(its.samples.cols %in% names(m)) | (NROW(m) < 1))
         if (!is.null(err_desc)){
             stop(err_desc)
         } else
@@ -174,7 +174,7 @@ its.bands <- function(m = NULL, but = c("from", "to")){
     result <- .its.factory(m, function(m){
         its.valid(m, "its.bands - invalid data input")
         result <- colnames(m)
-        result <- result[!(result %in% c(its.cols, but))]
+        result <- result[!(result %in% c(its.samples.cols, but))]
         return(result)
     })
     return(result)
@@ -228,13 +228,20 @@ its.select <- function(m = NULL, ...){
                              stop("its.select - invalid bands expression."))
     })[-1:0] %>% unlist()
 
+    attrs <- attributes(m)[its.attrs]
+
     result <- .its.factory(m, function(m){
         its.valid(m, "its.select - invalid data input.")
 
         if (!all(bands %in% its.bands(m)))
             stop("its.select - invalid bands.")
 
-        result <- dplyr::select_(m, .dots = c(its.feat.cols[its.feat.cols %in% colnames(m)], bands))
+        result <- dplyr::select_(m, .dots = c(its.samples.cols[its.samples.cols %in% colnames(m)], bands))
+
+        result <-
+            result %>%
+            .its.stamp(attrs)
+
         return(result)
     })
     return(result)
