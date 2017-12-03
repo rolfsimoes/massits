@@ -5,10 +5,10 @@
 \title{massits machine learning functions}
 \usage{
 its.ml.model.svm_radial(f = NULL, formula = its.formula.linear(),
-  gamma = 1/its.feat.length(f), cost = 1)
+  gamma = function(f) {     1/its.feat.length(f) }, cost = 1)
 }
 \arguments{
-\item{f}{A valid massits features tibble}
+\item{f}{A massits features tibble to compose the formula expression.}
 
 \item{formula}{A valid massits formula to be used in classification model}
 

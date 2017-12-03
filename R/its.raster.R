@@ -82,7 +82,7 @@ its.raster <- function(bands = list(evi = "~/Downloads/sinop-crop-evi.tif",
     attrs <- list("its_raster" = r)
     result <-
         result %>%
-        dplyr::select(c(its.cols, names(r$bands))) %>%
+        dplyr::select(c(its.samples.cols, names(r$bands))) %>%
         .its.stamp(attrs)
 
     return(result)

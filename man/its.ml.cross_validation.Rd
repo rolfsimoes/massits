@@ -4,14 +4,17 @@
 \alias{its.ml.cross_validation}
 \title{massits machine learning functions}
 \usage{
-its.ml.cross_validation(f, ml_model = its.ml.model.svm_radial(), cross = 5)
+its.ml.cross_validation(f, ml_model = its.ml.model.svm_radial(), cross = 5,
+  cores = 1)
 }
 \arguments{
-\item{f}{A valid massits features tibble}
+\item{f}{A massits features tibble to compose the formula expression.}
 
 \item{ml_model}{A valid machine learning model function}
 
 \item{cross}{Cross validation partitions to be test for each parameter combinations}
+
+\item{cores}{Number of threads to process cross-validation (Default \code{1}).}
 }
 \value{
 A confusion matrix returned by \code{\link{confusionMatrix}} of \code{caret} package

@@ -4,14 +4,14 @@
 #' @description  SVM model. This function is a wraper to the \code{\link{svm}}
 #'               function of \code{e1071} package.
 #'               If no massits features tibble is informed, an enclosed function is returned.
-#' @param f            A valid massits features tibble
+#' @param f             A massits features tibble to compose the formula expression.
 #' @param formula      A valid massits formula to be used in classification model
 #' @param gamma        Radial kernel parameter (\eqn{e^{(-gamma*|u-v|^2)}}{exp(-gamma*|u-v|^2)})
 #' @param cost         Cost of constraint violation
 #' @return SVM Model
 #' @export
 its.ml.model.svm_radial <- function(f = NULL, formula = its.formula.linear(),
-                                    gamma = 1 / its.feat.length(f), cost = 1){
+                                    gamma = function(f) {1 / its.feat.length(f)}, cost = 1){
 
     formula <- substitute(formula)
     gamma <- substitute(gamma)
@@ -23,7 +23,7 @@ its.ml.model.svm_radial <- function(f = NULL, formula = its.formula.linear(),
 
             model <-
                 e1071::svm(formula = eval(formula)(f), data = f,
-                           kernel = "radial", gamma = eval(gamma),
+                           kernel = "radial", gamma = eval(gamma)(f),
                            cost = eval(cost), probability = TRUE)
 
             attr(model, "levels") <- model$levels
@@ -47,15 +47,13 @@ its.ml.model.svm_radial <- function(f = NULL, formula = its.formula.linear(),
 #'               Shanon entropy, given by \eqn{re = \frac{e}{\log{k}}}{re = e / (log k)};
 #'               and \code{"none"}, nothing is returned.
 #'
-#' @param f             A valid massits measures tibble
+#' @param f             A massits features tibble to compose the formula expression.
 #' @param ml_model      A valid machine learning model function
 #' @param summation     String value indicating a summation regarding the prediction
 #' @return A prediction function that receives as input a massits features tibble
 #' @export
 its.ml.create_predict <- function(f, ml_model = its.ml.model.svm_radial(),
                                   summation = c("probabilities", "entropy", "rentropy", "none")){
-    its.feat.valid(f, "its.ml.create_predict - invalid input data")
-
     model <- ml_model(f)
 
     its.ml.predict <- function(f){
@@ -124,21 +122,20 @@ its.ml.create_predict <- function(f, ml_model = its.ml.model.svm_radial(),
 #' @description  Proceeds a cross validation for a given machine learning method.
 #'               The number of partitions is given by \code{cross} parameter.
 #'               The result is a tibble with a "reference" and "predicted" columns
-#' @param f            A valid massits features tibble
-#' @param ml_model     A valid machine learning model function
-#' @param cross        Cross validation partitions to be test for each parameter combinations
+#' @param f             A massits features tibble to compose the formula expression.
+#' @param ml_model      A valid machine learning model function
+#' @param cross         Cross validation partitions to be test for each parameter combinations
+#' @param cores         Number of threads to process cross-validation (Default \code{1}).
 #' @return A confusion matrix returned by \code{\link{confusionMatrix}} of \code{caret} package
 #' @export
-its.ml.cross_validation <- function(f, ml_model = its.ml.model.svm_radial(), cross = 5){
+its.ml.cross_validation <- function(f, ml_model = its.ml.model.svm_radial(), cross = 5, cores = 1){
 
     its.fold <- its.feat.create_folds(f, cross = cross)
 
     folds.tb <-
-        seq_len(cross) %>%
-        purrr::map(function(i){
+        parallel::mclapply(seq_len(cross), function(i){
             f_train <- its.fold(-i)
             f_test <- its.fold(i)
-
             its.ml.predict <- its.ml.create_predict(f_train, ml_model = ml_model, summation = "none")
             predict.tb <- its.ml.predict(f_test)
 
@@ -146,7 +143,7 @@ its.ml.cross_validation <- function(f, ml_model = its.ml.model.svm_radial(), cro
                 dplyr::select(reference, predicted)
 
             return(result)
-        }) %>%
+        }, mc.cores = cores) %>%
         dplyr::bind_rows()
 
     result <- caret::confusionMatrix(folds.tb$predicted, folds.tb$reference)
@@ -158,10 +155,10 @@ its.ml.cross_validation <- function(f, ml_model = its.ml.model.svm_radial(), cro
 #' @name its.tune
 #' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
 #' @description  Proceeds a tunning of parameters for a given machine learning method
-#' @param f            A valid massits features tibble
-#' @param ml_model     A valid machine learning method function
-#' @param range        A named list to be expanded that is passed as arguments to method function
-#' @param cross        Cross validation partitions to be test for each parameter combinations
+#' @param f             A massits features tibble to compose the formula expression.
+#' @param ml_model      A valid machine learning method function
+#' @param range         A named list to be expanded that is passed as arguments to method function
+#' @param cross         Cross validation partitions to be test for each parameter combinations
 #' @return Tibble of parameters and accuracy
 #' @export
 its.tune <- function(f, ml_model = its.ml.model.svm_radial(), range, cross = 5){

@@ -7,7 +7,7 @@
 its.feat.create_folds(f, cross)
 }
 \arguments{
-\item{f}{A valid massits features tibble}
+\item{f}{A massits features tibble to compose the formula expression.}
 
 \item{cross}{Number of partitions to be used in cross validation}
 }
