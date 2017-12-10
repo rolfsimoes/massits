@@ -77,6 +77,7 @@ its.raw.feat <- function(d, t_length = 23){
 
     bands <- names(d)
     bands <- bands[!(bands %in% its.feat.cols)]
+
     d$t <- rep(1:t_length, NROW(d) / t_length)
 
     result <-
