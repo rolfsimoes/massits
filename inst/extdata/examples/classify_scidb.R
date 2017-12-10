@@ -23,22 +23,17 @@ if (is.null(cores))
     cores <- 1
 cores <- as.integer(cores)
 
+model_file <- params[["model"]]
+
 # read the predict model (SVM kernel radial, formula log)
-its.predict <- readRDS("/net/esensing-001/disks/d9/scidb15_12/scripts/cerrado/model_classification_svm.rds")
+its.predict <- readRDS(model_file)
 
 # process
 classify <- function(chunk.bin){
     result <- chunk.bin %>%
-        tibble::as.tibble() %>%
-        its(col_names = c("x", "y", "t")) %>%
-        its.select(evi, ndvi, nir, mir) %>%
-        its.apply_na() %>%
-        its.interp.na() %>%
-        its.scale() %>%
-        its.translate() %>%
-        its.feat(time_break = its.t_break(16, 23), cores = cores) %>%
-        its.predict() %>%
-        dplyr::select(-sample_id, -reference, -from, -to)
+        its.raw.feat(t_length = 23) %>%
+        its.predict(cores = 8) %>%
+        dplyr::select(-reference)
     return(result)
 }
 

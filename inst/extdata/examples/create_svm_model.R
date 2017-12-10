@@ -23,98 +23,99 @@ cerr.tb <-
 # create feture tibble
 cerr_f.tb <-
     cerr.tb %>%
-    its.samples.feat(bands = c("evi", "ndvi"))
+    its.samples.feat(bands = c("evi", "ndvi", "nir", "mir")); cerr_f.tb
 
 # estimate accuracy
 cerr_f.tb %>%
-    its.ml.cross_validation(ml_model = its.ml.model.svm_radial(formula = its.formula.log(), cost = 10),
-                            cross = 5, cores = 4)
+    its.ml.cross_validation(ml_model = its.ml.model.svm_radial(formula = its.formula.log(), cost = 1000),
+                            cross = 5, cores = 5)
+
 # Confusion Matrix and Statistics
 #
 # Reference
-# Prediction         Cerrado.1 Cerrado.2 Cerrado_Campo Cerrado_Rupestre Corn_Cotton Fallow_Cotton.1 Fallow_Cotton.2 Forest Millet_Cotton Pasture Soy_Corn.1 Soy_Corn.2 Soy_Cotton.1
-# Cerrado.1              291        29            14                6           0               0               0      0             0      17          0          0            0
-# Cerrado.2               40       220             4                7           0               0               0      0             0      16          1          0            0
-# Cerrado_Campo           27         7           419                9           0               0               0      0             0       8          0          0            0
-# Cerrado_Rupestre        14        12             4              574           0               0               0      0             0       1          0          0            0
-# Corn_Cotton              0         0             0                0          36               0               0      0             0       0          0          0            0
-# Fallow_Cotton.1          0         0             0                0           0              24               0      0             0       0          1          0            3
-# Fallow_Cotton.2          0         0             0                0           0               1             428      0             4       1          1          1           14
-# Forest                   1         0             0                0           0               0               0    136             0       2          0          0            0
-# Millet_Cotton            0         0             0                0           0               1               3      0           235       0          0          0            3
-# Pasture                 27         9             8                1           0               3               1      2             0    1795         37          4            5
-# Soy_Corn.1               0         0             0                0           0               0               1      0             0      36       1791         69           50
-# Soy_Corn.2               0         0             0                0           0               0               0      0             0       5        239       2250           16
-# Soy_Cotton.1             0         0             0                0           0               5               2      0             1       8         35          0          692
-# Soy_Cotton.2             0         0             0                0           0               0               6      0             2       0         22         23          127
-# Soy_Fallow               0         0             0                0           0               0               0      0             0       1          1          0            0
-# Soy_Millet               0         0             0                0           0               0               0      0             0      11         31          3            1
-# Soy_Sunflower            0         0             0                0           0               0               0      0             0       0          6          0            0
+# Prediction         Cerrado.1 Cerrado.2 Cerrado_Campo Cerrado_Rupestre Corn_Cotton Fallow_Cotton.1 Fallow_Cotton.2 Forest Millet_Cotton
+# Cerrado.1              306        22            17                6           0               0               0      0             0
+# Cerrado.2               41       235             3                5           0               0               0      0             0
+# Cerrado_Campo           28         7           422                4           0               0               0      0             0
+# Cerrado_Rupestre        15         3             2              582           0               0               0      0             0
+# Corn_Cotton              0         0             0                0          36               0               0      0             0
+# Fallow_Cotton.1          0         0             0                0           0              30               0      0             0
+# Fallow_Cotton.2          0         0             0                0           0               0             424      0             5
+# Forest                   1         0             0                0           0               0               0    135             0
+# Millet_Cotton            0         0             0                0           0               0               2      0           233
+# Pasture                  9        10             5                0           0               1               3      2             0
+# Soy_Corn.1               0         0             0                0           0               2               0      0             0
+# Soy_Corn.2               0         0             0                0           0               0               1      0             0
+# Soy_Cotton.1             0         0             0                0           0               1               7      0             4
+# Soy_Cotton.2             0         0             0                0           0               0               4      0             0
+# Soy_Fallow               0         0             0                0           0               0               0      0             0
+# Soy_Millet               0         0             0                0           0               0               0      1             0
+# Soy_Sunflower            0         0             0                0           0               0               0      0             0
 # Reference
-# Prediction         Soy_Cotton.2 Soy_Fallow Soy_Millet Soy_Sunflower
-# Cerrado.1                   0          0          1             0
-# Cerrado.2                   0          0          0             0
-# Cerrado_Campo               0          0          0             0
-# Cerrado_Rupestre            0          0          0             0
-# Corn_Cotton                 0          0          0             0
-# Fallow_Cotton.1             0          0          0             0
-# Fallow_Cotton.2             3          0          0             0
-# Forest                      0          0          1             0
-# Millet_Cotton               0          0          0             0
-# Pasture                     3          3         24             0
-# Soy_Corn.1                  7          2         63            13
-# Soy_Corn.2                 21          0          2             1
-# Soy_Cotton.1                9          0          4             0
-# Soy_Cotton.2             2347          0          1             0
-# Soy_Fallow                  0        133          3             0
-# Soy_Millet                  1          1        146             2
-# Soy_Sunflower               0          0          1            37
+# Prediction         Pasture Soy_Corn.1 Soy_Corn.2 Soy_Cotton.1 Soy_Cotton.2 Soy_Fallow Soy_Millet Soy_Sunflower
+# Cerrado.1             12          0          0            0            0          0          2             0
+# Cerrado.2              7          0          0            0            0          0          0             0
+# Cerrado_Campo          5          0          0            0            0          0          0             0
+# Cerrado_Rupestre       2          0          0            0            0          0          0             0
+# Corn_Cotton            0          0          0            0            0          0          0             0
+# Fallow_Cotton.1        0          2          0            0            0          0          0             0
+# Fallow_Cotton.2        1          0          1           13            3          0          0             0
+# Forest                 3          0          0            0            0          0          1             0
+# Millet_Cotton          0          0          0            4            0          0          0             0
+# Pasture             1815         42          4            6            2          1         18             0
+# Soy_Corn.1            38       1865        119           39            8          1         64            12
+# Soy_Corn.2             3        178       2198           12           20          0          3             0
+# Soy_Cotton.1           5         25         10          728           69          0          3             0
+# Soy_Cotton.2           0         13         16          109         2289          0          1             0
+# Soy_Fallow             0          1          0            0            0        137          1             0
+# Soy_Millet            10         35          2            0            0          0        153             1
+# Soy_Sunflower          0          4          0            0            0          0          0            40
 #
 # Overall Statistics
 #
-# Accuracy : 0.9048
-# 95% CI : (0.8996, 0.9098)
+# Accuracy : 0.9106
+# 95% CI : (0.9055, 0.9155)
 # No Information Rate : 0.1872
 # P-Value [Acc > NIR] : < 2.2e-16
 #
-# Kappa : 0.89
+# Kappa : 0.8968
 # Mcnemar's Test P-Value : NA
 #
 # Statistics by Class:
 #
-# Class: Cerrado.1 Class: Cerrado.2 Class: Cerrado_Campo Class: Cerrado_Rupestre Class: Corn_Cotton Class: Fallow_Cotton.1 Class: Fallow_Cotton.2 Class: Forest
-# Sensitivity                   0.72750          0.79422              0.93318                 0.96147           1.000000               0.705882                0.97052       0.98551
-# Specificity                   0.99458          0.99456              0.99586                 0.99745           1.000000               0.999686                0.99797       0.99968
-# Pos Pred Value                0.81285          0.76389              0.89149                 0.94876           1.000000               0.857143                0.94481       0.97143
-# Neg Pred Value                0.99122          0.99543              0.99756                 0.99811           1.000000               0.999215                0.99894       0.99984
-# Prevalence                    0.03132          0.02169              0.03516                 0.04675           0.002819               0.002662                0.03453       0.01081
-# Detection Rate                0.02279          0.01723              0.03281                 0.04495           0.002819               0.001879                0.03352       0.01065
-# Detection Prevalence          0.02803          0.02255              0.03681                 0.04738           0.002819               0.002193                0.03547       0.01096
-# Balanced Accuracy             0.86104          0.89439              0.96452                 0.97946           1.000000               0.852784                0.98425       0.99260
-# Class: Millet_Cotton Class: Pasture Class: Soy_Corn.1 Class: Soy_Corn.2 Class: Soy_Cotton.1 Class: Soy_Cotton.2 Class: Soy_Fallow Class: Soy_Millet
-# Sensitivity                       0.97107         0.9442            0.8273            0.9574             0.75960              0.9816           0.95683           0.59350
-# Specificity                       0.99944         0.9883            0.9773            0.9727             0.99460              0.9826           0.99960           0.99601
-# Pos Pred Value                    0.97107         0.9339            0.8814            0.8879             0.91534              0.9284           0.96377           0.74490
-# Neg Pred Value                    0.99944         0.9902            0.9652            0.9902             0.98177              0.9957           0.99953           0.99205
-# Prevalence                        0.01895         0.1489            0.1695            0.1840             0.07134              0.1872           0.01088           0.01926
-# Detection Rate                    0.01840         0.1406            0.1403            0.1762             0.05419              0.1838           0.01042           0.01143
-# Detection Prevalence              0.01895         0.1505            0.1591            0.1984             0.05920              0.1980           0.01081           0.01535
-# Balanced Accuracy                 0.98526         0.9663            0.9023            0.9651             0.87710              0.9821           0.97822           0.79475
-# Class: Soy_Sunflower
-# Sensitivity                      0.698113
-# Specificity                      0.999450
-# Pos Pred Value                   0.840909
-# Neg Pred Value                   0.998743
-# Prevalence                       0.004150
-# Detection Rate                   0.002897
-# Detection Prevalence             0.003446
-# Balanced Accuracy                0.848781
+#                      Class: Cerrado.1 Class: Cerrado.2 Class: Cerrado_Campo Class: Cerrado_Rupestre Class: Corn_Cotton
+# Sensitivity                   0.76500          0.84838              0.93987                 0.97487           1.000000
+# Specificity                   0.99523          0.99552              0.99643                 0.99819           1.000000
+# Pos Pred Value                0.83836          0.80756              0.90558                 0.96358           1.000000
+# Neg Pred Value                0.99242          0.99663              0.99781                 0.99877           1.000000
+# Prevalence                    0.03132          0.02169              0.03516                 0.04675           0.002819
+# Detection Rate                0.02396          0.01840              0.03305                 0.04558           0.002819
+# Detection Prevalence          0.02858          0.02279              0.03649                 0.04730           0.002819
+# Balanced Accuracy             0.88012          0.92195              0.96815                 0.98653           1.000000
+#                      Class: Fallow_Cotton.1 Class: Fallow_Cotton.2 Class: Forest Class: Millet_Cotton Class: Pasture Class: Soy_Corn.1
+# Sensitivity                        0.882353                0.96145       0.97826              0.96281         0.9548            0.8614
+# Specificity                        0.999843                0.99813       0.99960              0.99952         0.9905            0.9733
+# Pos Pred Value                     0.937500                0.94855       0.96429              0.97490         0.9463            0.8682
+# Neg Pred Value                     0.999686                0.99862       0.99976              0.99928         0.9921            0.9718
+# Prevalence                         0.002662                0.03453       0.01081              0.01895         0.1489            0.1695
+# Detection Rate                     0.002349                0.03320       0.01057              0.01825         0.1421            0.1460
+# Detection Prevalence               0.002506                0.03500       0.01096              0.01872         0.1502            0.1682
+# Balanced Accuracy                  0.941098                0.97979       0.98893              0.98117         0.9726            0.9174
+#                      Class: Soy_Corn.2 Class: Soy_Cotton.1 Class: Soy_Cotton.2 Class: Soy_Fallow Class: Soy_Millet Class: Soy_Sunflower
+# Sensitivity                     0.9353             0.79912              0.9573           0.98561           0.62195             0.754717
+# Specificity                     0.9792             0.98954              0.9862           0.99984           0.99609             0.999685
+# Pos Pred Value                  0.9101             0.85446              0.9412           0.98561           0.75743             0.909091
+# Neg Pred Value                  0.9853             0.98465              0.9901           0.99984           0.99260             0.998978
+# Prevalence                      0.1840             0.07134              0.1872           0.01088           0.01926             0.004150
+# Detection Rate                  0.1721             0.05701              0.1792           0.01073           0.01198             0.003132
+# Detection Prevalence            0.1891             0.06672              0.1904           0.01088           0.01582             0.003446
+# Balanced Accuracy               0.9572             0.89433              0.9718           0.99273           0.80902             0.877201
 
 # train SVM model
 its.predict <-
     cerr_f.tb %>%
-    its.ml.create_predict(ml_model = its.ml.model.svm_radial(formula = its.formula.log(), cost = 10),
-                          summation = c("rentropy"))
+    its.ml.create_predict(ml_model = its.ml.model.svm_radial(formula = its.formula.log(), cost = 1000),
+                          summation = c("none"))
 
 # save model to a RDS file
 saveRDS(its.predict, file = "~/its.predict.rds")

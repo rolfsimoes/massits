@@ -23,7 +23,9 @@ its.samples.cols <-
 #' @author Rolf Simoes, \email{rolf.simoes@@inpe.br}
 #' @description  Massits features tibble column names
 its.feat.cols <-
-    c("reference")
+    c("x",
+      "y",
+      "t")
 
 #' @title massits utils globals
 #' @name its.pred.cols
