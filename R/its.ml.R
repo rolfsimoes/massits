@@ -53,7 +53,7 @@ its.ml.model.svm_radial <- function(f = NULL, formula = its.formula.linear(),
 #' @return A prediction function that receives as input a massits features tibble
 #' @export
 its.ml.create_predict <- function(f, ml_model = its.ml.model.svm_radial(),
-                                  summation = c("probabilities", "entropy", "rentropy", "none")){
+                                  summation = c("none", "probabilities", "entropy", "rentropy")){
     model <- ml_model(f)
 
     its.ml.predict <- function(f, cores = 1){
@@ -62,24 +62,26 @@ its.ml.create_predict <- function(f, ml_model = its.ml.model.svm_radial(),
         attrs <- attributes(f)[its.attrs]
         attrs$levels <- attr(model, "levels")
 
-        eval(parse(text = sprintf("require(%s, quietly = TRUE, warn.conflicts = FALSE)",
-                                  attr(model, "library"))))
+        if (!requireNamespace(attr(model, "library")))
+            stop(sprintf("Required package %s not loaded.", attr(model, "library")))
 
         result <- f %>%
-            dplyr::select(its.feat.cols)
+            dplyr::select(its.samples.cols)
 
         do_predict <- function(i = 1){
             partition <-
                 if (cores > 1) cut(1:NROW(f), cores, labels = FALSE) else rep(1, NROW(f))
             part_predicted <-
                 stats::predict(model,
-                               newdata = f[partition == i, -which(names(f) %in% its.feat.cols)],
+                               newdata = f[partition == i, -which(names(f) %in% its.samples.cols)],
                                probability = (summation[[1]] != "none"))
 
             result <- tibble::tibble(predicted = part_predicted)
-            result <- list(result,
-                           attr(part_predicted, "probabilities") %>%
-                               tibble::as_tibble()) %>%
+
+            if (!is.null(attr(part_predicted, "probabilities")))
+                result <- list(result,
+                               attr(part_predicted, "probabilities") %>%
+                                   tibble::as_tibble()) %>%
                 dplyr::bind_cols()
             return(result)
         }
@@ -95,7 +97,8 @@ its.ml.create_predict <- function(f, ml_model = its.ml.model.svm_radial(),
         result$predicted <- predicted.tb$predicted
         result <-
             result %>%
-            dplyr::mutate_all(function(x) factor(x, levels = attr(model, "levels")))
+            dplyr::mutate(reference = factor(reference, levels = attr(model, "levels")),
+                          predicted = factor(predicted, levels = attr(model, "levels")))
 
         if (summation[1] != "none"){
             probs.tb <-

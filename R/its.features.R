@@ -21,7 +21,7 @@ its.samples.feat <- function(m, bands = its.bands()){
     t_length <- t_length[1]
 
     result <-
-        purrr::map2(m[its.feat.cols], its.feat.cols, function(b, b_name){
+        purrr::map2(m[its.samples.cols], its.samples.cols, function(b, b_name){
             result <-
                 b %>%
                 matrix(nrow = t_length) %>%
@@ -49,7 +49,7 @@ its.samples.feat <- function(m, bands = its.bands()){
     result <-
         list(result, features) %>%
         dplyr::bind_cols() %>%
-        dplyr::select(its.feat.cols, dplyr::everything())
+        dplyr::select(its.samples.cols, dplyr::everything())
 
     result <-
         result %>%
@@ -76,9 +76,21 @@ its.raw.feat <- function(d, t_length = 23){
         stop("its.raw.feat - data length must be multiple of t_length.")
 
     bands <- names(d)
+    bands <- bands[!(bands %in% its.feat.cols)]
+
+    result <-
+        purrr::map2(d[its.feat.cols], its.feat.cols, function(b, b_name){
+            result <-
+                matrix(b, nrow = t_length) %>%
+                t() %>% .[,1]
+                tibble::as_tibble()
+            names(result) <- paste(b_name)
+            return(result)
+        }) %>%
+        dplyr::bind_cols()
 
     features <-
-        purrr::map2(d, bands, function(b, b_name){
+        purrr::map2(d[bands], bands, function(b, b_name){
             result <-
                 matrix(b, nrow = t_length) %>%
                 t() %>%
@@ -88,13 +100,15 @@ its.raw.feat <- function(d, t_length = 23){
         }) %>%
         dplyr::bind_cols()
 
-    result <- lapply(its.feat.cols, function(x) rep(as.integer(NA), NROW(features)))
-    names(result) <- its.feat.cols
+    na_headers <- its.samples.cols[!(its.samples.cols %in% its.feat.cols)]
+    na_values <- as.integer(rep(NA, length(na_headers)))
+    names(na_values) <- na_headers
 
     result <-
         list(result, features) %>%
         dplyr::bind_cols() %>%
-        dplyr::select(its.feat.cols, dplyr::everything())
+        dplyr::mutate_(.dots = na_values) %>%
+        dplyr::select(its.samples.cols, dplyr::everything())
 
     result <-
         result %>%

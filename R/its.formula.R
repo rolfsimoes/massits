@@ -10,7 +10,7 @@ its.formula.linear <- function(f = NULL){
     result <-
         .its.factory(f, function(f){
             its.feat.valid(f)
-            predictors <- paste(names(f)[-length(its.feat.cols):0], collapse = " + ")
+            predictors <- paste(names(f)[-length(its.samples.cols):0], collapse = " + ")
             result = stats::formula(paste("factor(reference) ~", predictors))
             return(result)
         })
@@ -29,7 +29,7 @@ its.formula.linear <- function(f = NULL){
 its.formula.log <- function(f = NULL){
     result <-
         .its.factory(f, function(f){
-            predictors <- paste(paste0("log(", names(f)[-length(its.feat.cols):0], ")"), collapse = " + ")
+            predictors <- paste(paste0("log(", names(f)[-length(its.samples.cols):0], ")"), collapse = " + ")
             result = stats::formula(paste("factor(reference) ~", predictors))
             return(result)
         })
